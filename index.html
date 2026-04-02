@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIA Operations Portal</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#4878F0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="AIA Portal">
+<link rel="apple-touch-icon" href="favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F0F2F8;
+  --bg2:#E8EAF2;
+  --surface:#FFFFFF;
+  --surface2:#F5F6FB;
+  --border:#E2E5F0;
+  --border2:#D4D8EC;
+  --text:#131827;
+  --text2:#5A6080;
+  --text3:#9AA0BB;
+  --radius:18px;
+  --shadow:0 2px 16px rgba(60,70,120,0.08), 0 1px 3px rgba(60,70,120,0.06);
+  --shadow-hover:0 16px 48px rgba(60,70,120,0.16), 0 4px 12px rgba(60,70,120,0.10);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100vh}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;overflow-x:hidden}
+
+/* ── BACKGROUND TEXTURE ── */
+.bg-wrap{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.bg-blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:0.45}
+.b1{width:600px;height:600px;background:radial-gradient(circle,#c7d8ff,transparent 70%);top:-180px;left:-100px}
+.b2{width:500px;height:500px;background:radial-gradient(circle,#d0f5e8,transparent 70%);top:20%;right:-120px}
+.b3{width:450px;height:450px;background:radial-gradient(circle,#ede0ff,transparent 70%);bottom:-100px;left:20%}
+.b4{width:350px;height:350px;background:radial-gradient(circle,#feeacc,transparent 70%);bottom:10%;right:5%}
+
+/* subtle dot grid */
+.dot-grid{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:radial-gradient(circle,#c5cadf 1px,transparent 1px);
+  background-size:28px 28px;opacity:0.5}
+
+/* ── PAGE ── */
+.page{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 28px 72px}
+
+/* ── HEADER ── */
+.header{
+  padding:40px 0 32px;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:16px;flex-wrap:wrap;
+  border-bottom:1.5px solid var(--border);
+  margin-bottom:44px;
+  animation:fadeDown 0.5s ease both
+}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
+
+.logo-row{display:flex;align-items:center;gap:14px}
+.logo-gem{
+  width:46px;height:46px;border-radius:14px;
+  background:linear-gradient(135deg,#4878F0,#7B52F5);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:#fff;letter-spacing:-0.5px;
+  box-shadow:0 6px 24px rgba(72,120,240,0.35),0 0 0 3px rgba(72,120,240,0.12);
+}
+.portal-name{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;letter-spacing:-0.3px;color:var(--text)}
+.portal-sub{font-size:11.5px;color:var(--text3);margin-top:3px;font-weight:400}
+
+.clock-pill{
+  background:var(--surface);border:1.5px solid var(--border2);
+  border-radius:12px;padding:9px 18px;
+  font-family:'DM Mono',monospace;font-size:12px;color:var(--text2);
+  white-space:nowrap;
+  box-shadow:var(--shadow)
+}
+.clock-pill b{color:#4878F0}
+
+/* ── SECTION LABEL ── */
+.sec-label{
+  font-family:'Syne',sans-serif;
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.16em;
+  color:var(--text3);margin-bottom:18px;
+  display:flex;align-items:center;gap:14px
+}
+.sec-label::after{content:'';flex:1;height:1.5px;background:var(--border)}
+
+/* ── APP GRID ── */
+.app-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:48px}
+@media(max-width:900px){.app-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.app-grid{grid-template-columns:1fr}}
+
+/* ── APP CARD ── */
+.app-card{
+  background:var(--surface);
+  border:1.5px solid var(--border);
+  border-radius:var(--radius);
+  padding:26px 24px 22px;
+  cursor:pointer;text-decoration:none;
+  display:flex;flex-direction:column;
+  position:relative;overflow:hidden;
+  transition:border-color 0.22s, transform 0.2s, box-shadow 0.22s;
+  animation:fadeUp 0.5s ease both;
+  box-shadow:var(--shadow);
+}
+.app-card:nth-child(1){animation-delay:.05s}
+.app-card:nth-child(2){animation-delay:.10s}
+.app-card:nth-child(3){animation-delay:.15s}
+.app-card:nth-child(4){animation-delay:.20s}
+.app-card:nth-child(5){animation-delay:.25s}
+.app-card:nth-child(6){animation-delay:.30s}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+
+/* top accent bar */
+.app-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:var(--grad);opacity:0;transition:opacity 0.22s;border-radius:var(--radius) var(--radius) 0 0
+}
+.app-card:hover{
+  border-color:var(--c,#4878F0);
+  transform:translateY(-5px);
+  box-shadow:var(--shadow-hover);
+}
+.app-card:hover::before{opacity:1}
+
+/* soft glow on hover */
+.app-card::after{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% -5%,color-mix(in srgb,var(--c,#4878F0) 8%,transparent),transparent 60%);
+  opacity:0;transition:opacity 0.3s;pointer-events:none
+}
+.app-card:hover::after{opacity:1}
+
+/* featured spans 2 cols */
+.app-card.wide{grid-column:span 2}
+@media(max-width:900px){.app-card.wide{grid-column:span 1}}
+
+/* ── APP ICON — colorful pill-style ── */
+.app-icon{
+  width:56px;height:56px;border-radius:16px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;
+  margin-bottom:18px;
+  background:var(--icon-bg);
+  box-shadow:0 4px 16px var(--icon-shadow);
+  position:relative;z-index:1;
+  transition:transform 0.2s, box-shadow 0.2s;
+  flex-shrink:0;
+}
+.app-card:hover .app-icon{
+  transform:scale(1.08) rotate(-3deg);
+  box-shadow:0 8px 28px var(--icon-shadow);
+}
+
+.app-name{
+  font-family:'Syne',sans-serif;
+  font-size:15px;font-weight:700;color:var(--text);
+  margin-bottom:8px;letter-spacing:-0.2px;position:relative;z-index:1
+}
+.app-desc{font-size:12px;color:var(--text2);line-height:1.75;flex:1;position:relative;z-index:1}
+.app-footer{display:flex;align-items:center;justify-content:space-between;margin-top:20px;position:relative;z-index:1}
+
+.app-tag{
+  font-size:10px;font-weight:600;letter-spacing:0.05em;
+  padding:4px 11px;border-radius:999px;
+  background:color-mix(in srgb,var(--c,#4878F0) 10%,transparent);
+  color:color-mix(in srgb,var(--c,#4878F0) 80%,#000);
+  border:1px solid color-mix(in srgb,var(--c,#4878F0) 20%,transparent)
+}
+.app-arrow{
+  width:32px;height:32px;border-radius:10px;
+  background:var(--bg2);border:1.5px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;color:var(--text3);
+  transition:background 0.2s,color 0.2s,border-color 0.2s,transform 0.2s
+}
+.app-card:hover .app-arrow{
+  background:var(--c,#4878F0);border-color:var(--c,#4878F0);
+  color:#fff;transform:rotate(-45deg) scale(1.08)
+}
+
+/* ── STATS BAR (featured card extra) ── */
+.stat-row{
+  display:flex;gap:20px;margin-top:16px;padding-top:14px;
+  border-top:1px solid var(--border);position:relative;z-index:1;flex-wrap:wrap
+}
+.stat-item{display:flex;flex-direction:column;gap:2px}
+.stat-val{font-family:'DM Mono',monospace;font-size:17px;font-weight:500;color:var(--c,#4878F0)}
+.stat-lbl{font-size:10px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:0.08em}
+
+/* ── STATUS BADGES ── */
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;padding:3px 9px;border-radius:999px}
+.badge-live{background:#e8faf2;color:#16a34a;border:1px solid #bbf7d0}
+.badge-live::before{content:'';width:5px;height:5px;border-radius:50%;background:#16a34a;display:inline-block}
+
+/* ── FOOTER ── */
+.portal-footer{
+  border-top:1.5px solid var(--border);padding-top:22px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px
+}
+.footer-l{font-size:11px;color:var(--text3)}
+.footer-l span{color:var(--text2)}
+.footer-r{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace}
+
+/* ── DIVIDER SECTION ── */
+.section-gap{height:4px}
+</style>
+</head>
+<body>
+
+<div class="bg-wrap">
+  <div class="bg-blob b1"></div>
+  <div class="bg-blob b2"></div>
+  <div class="bg-blob b3"></div>
+  <div class="bg-blob b4"></div>
+</div>
+<div class="dot-grid"></div>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <div class="logo-row">
+        <div class="logo-gem">AIA</div>
+        <div>
+          <div class="portal-name">AIA Operations Portal</div>
+          <div class="portal-sub">All your tools in one place — click any app to open</div>
+        </div>
+      </div>
+    </div>
+    <div class="clock-pill">🕐 <b id="live-time">--:--:--</b> &nbsp;·&nbsp; <span id="live-date">—</span></div>
+  </div>
+
+  <!-- PRODUCTION TOOLS -->
+  <div class="sec-label">Production Tools</div>
+  <div class="app-grid">
+
+    <!-- 1. DASHBOARD — wide/featured -->
+    <a class="app-card wide" href="https://artinartdashboard.vercel.app" target="_blank"
+      style="--c:#4878F0;--grad:linear-gradient(90deg,#4878F0,#7B52F5);
+             --icon-bg:linear-gradient(135deg,#4878F0,#7B52F5);
+             --icon-shadow:rgba(72,120,240,0.30)">
+      <div style="display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap">
+        <div class="app-icon">📊</div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+            <div class="app-name" style="margin-bottom:0">AIA Job Track Dashboard</div>
+            <div class="badge badge-live">Live</div>
+          </div>
+          <div class="app-desc">
+            Central command for all production jobs. Upload the AIA Track Record to see live status across every customer — dispatched, in process, not started, cancelled. Aging report, floor jobs, customer breakdown, and one-click meeting Excel download.
+          </div>
+        </div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-item"><div class="stat-val">360°</div><div class="stat-lbl">Job Visibility</div></div>
+        <div class="stat-item"><div class="stat-val" style="color:#7B52F5">XLS</div><div class="stat-lbl">Export Ready</div></div>
+        <div class="stat-item"><div class="stat-val" style="color:#16a34a">Live</div><div class="stat-lbl">Status</div></div>
+      </div>
+      <div class="app-footer">
+        <div class="app-tag">Tracking · Reports · Meeting Excel</div>
+        <div class="app-arrow">↗</div>
+      </div>
+    </a>
+
+    <!-- 2. LEAFLET PLANNING -->
+    <a class="app-card" href="#" target="_blank"
+      style="--c:#10B981;--grad:linear-gradient(90deg,#10B981,#34D399);
+             --icon-bg:linear-gradient(135deg,#10B981,#34D399);
+             --icon-shadow:rgba(16,185,129,0.28)">
+      <div class="app-icon">🗂️</div>
+      <div class="app-name">Leaflet Planning</div>
+      <div class="app-desc">Plan and schedule all leaflet production jobs. Track design approvals, quantities, and deadlines from a single view.</div>
+      <div class="app-footer">
+        <div class="app-tag">Planning · Scheduling</div>
+        <div class="app-arrow">↗</div>
+      </div>
+    </a>
+
+    <!-- 3. PRINTING -->
+    <a class="app-card" href="#" target="_blank"
+      style="--c:#0EA5E9;--grad:linear-gradient(90deg,#0EA5E9,#38BDF8);
+             --icon-bg:linear-gradient(135deg,#0EA5E9,#38BDF8);
+             --icon-shadow:rgba(14,165,233,0.28)">
+      <div class="app-icon">🖨️</div>
+      <div class="app-name">Printing Schedule</div>
+      <div class="app-desc">View and manage the printing schedule. Know which jobs are queued, on press, and completed — with dates and quantities.</div>
+      <div class="app-footer">
+        <div class="app-tag">Printing · Floor</div>
+        <div class="app-arrow">↗</div>
+      </div>
+    </a>
+
+    <!-- 4. PUNCHING -->
+    <a class="app-card" href="https://punchmanager.vercel.app" target="_blank"
+      style="--c:#8B5CF6;--grad:linear-gradient(90deg,#8B5CF6,#A78BFA);
+             --icon-bg:linear-gradient(135deg,#8B5CF6,#A78BFA);
+             --icon-shadow:rgba(139,92,246,0.30)">
+      <div class="app-icon">👊</div>
+      <div class="app-name">Punching Schedule</div>
+      <div class="app-desc">Track the punching stage for all jobs. See scheduled dates, pending quantities, and floor status at a glance.</div>
+      <div class="app-footer">
+        <div class="app-tag">Punching · Floor</div>
+        <div class="app-arrow">↗</div>
+      </div>
+    </a>
+
+    <!-- 5. PASTING -->
+    <a class="app-card" href="https://pastemanager-pro.vercel.app" target="_blank"
+      style="--c:#F59E0B;--grad:linear-gradient(90deg,#F59E0B,#FBBF24);
+             --icon-bg:linear-gradient(135deg,#F59E0B,#FBBF24);
+             --icon-shadow:rgba(245,158,11,0.30)">
+      <div class="app-icon">📋</div>
+      <div class="app-name">Pasting Schedule</div>
+      <div class="app-desc">Monitor the pasting process across all active jobs. Track progress, scheduled dates, and pending work in one place.</div>
+      <div class="app-footer">
+        <div class="app-tag">Pasting · Floor</div>
+        <div class="app-arrow">↗</div>
+      </div>
+    </a>
+
+    <!-- 6. QUALITY CHECK -->
+    <a class="app-card" href="https://qc-scheduler.vercel.app" target="_blank"
+      style="--c:#EF4444;--grad:linear-gradient(90deg,#EF4444,#F87171);
+             --icon-bg:linear-gradient(135deg,#EF4444,#F87171);
+             --icon-shadow:rgba(239,68,68,0.28)">
+      <div class="app-icon">✅</div>
+      <div class="app-name">Quality Check</div>
+      <div class="app-desc">Log and review quality checks for every job. Flag issues, track approvals, and ensure nothing leaves the floor without sign-off.</div>
+      <div class="app-footer">
+        <div class="app-tag">Quality · Inspection</div>
+        <div class="app-arrow">↗</div>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="portal-footer">
+    <div class="footer-l">AIA Operations Portal &nbsp;·&nbsp; <span>Internal use only</span></div>
+    <div class="footer-r" id="footer-date">—</div>
+  </div>
+
+</div>
+
+<script>
+function tick(){
+  var now=new Date();
+  var p=function(n){return String(n).padStart(2,'0')};
+  document.getElementById('live-time').textContent=p(now.getHours())+':'+p(now.getMinutes())+':'+p(now.getSeconds());
+  var days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var ds=days[now.getDay()]+', '+now.getDate()+' '+months[now.getMonth()]+' '+now.getFullYear();
+  document.getElementById('live-date').textContent=ds;
+  document.getElementById('footer-date').textContent=ds;
+}
+tick();setInterval(tick,1000);
+
+// PWA — Register Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
